@@ -5,7 +5,7 @@ import App from './App';
 import counter from './index.redux';
 
 const store = createStore(counter);
-console.log(1)
+console.log(10)
 function render(){
     ReactDom.render(<App store={store}/>, document.getElementById('root'));
 }

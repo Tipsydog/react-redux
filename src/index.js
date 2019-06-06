@@ -12,7 +12,11 @@ const store = createStore(counter, compose(
 ));
 console.log(10)
 function render(){
-    ReactDom.render(<App store={store} addGUN={addGUN} removeGUN={removeGUN} addGUNAsync={addGUNAsync}/>, document.getElementById('root'));
+    ReactDom.render(
+        <Provider store={store}>
+            <App />
+        </Provider>,   
+    document.getElementById('root'));
 }
 render()
 

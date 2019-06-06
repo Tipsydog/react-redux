@@ -6,7 +6,7 @@ const REMOVE_GUN = '减';
  * 通过reducer建立
  * 根据老的state和action生成新状态
  */
-export default function counter(state=0, action){
+export function counter(state=0, action){
     switch(action.type){
       case ADD_GUN:
         return state+1;

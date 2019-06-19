@@ -1,11 +1,14 @@
 
 import React from 'react';
 import { connect } from 'react-redux';
+import { Redirect } from 'react-router-dom'
 import { Result, List, WhiteSpace, Button, Modal } from 'antd-mobile'
 import browserCookies from 'browser-cookies'
+import {logoutSubmit} from '../../redux/user.redux'
 
 @connect(
-    state => state.user
+    state => state.user,
+    {logoutSubmit}
 )
 
 class User extends React.Component {
@@ -19,7 +22,8 @@ class User extends React.Component {
             { text: '取消', onPress: () => console.log('cancel') },
             { text: '确认', onPress: () => {
                 browserCookies.erase('userid')
-                window.location.href = window.location.href // 强制刷新页面，简单粗暴
+                // window.location.href = window.location.href // 强制刷新页面，简单粗暴，清除不了redux
+                this.props.logoutSubmit()   // 用于清除redux数据
             } },
           ])
     }
@@ -43,7 +47,7 @@ class User extends React.Component {
                         wrap
                     >
                         {props.title}{props.title}{props.title}{props.title}
-                        {console.log(this.props.decs)}
+                        {/* {console.log(this.props.decs)} */}
                         {this.props.decs.split('/n').map(v => (<Brief key={v}>{v}</Brief>))}
                         {props.money ? <Brief>{props.money}</Brief> : null}
                     </Item>
@@ -53,7 +57,9 @@ class User extends React.Component {
                 <Button onClick={this.logout} >退出登录</Button>
 
             </div>
-        ) : null
+        ) :  <Redirect to={this.props.redirectTo} /> 
+        
+
     }
 }
 

@@ -2,7 +2,9 @@ import React from 'react';
 import { Card, WhiteSpace, WingBlank } from 'antd-mobile';
 import { getUserList } from '../../redux/chatuser.redux'
 import {connect} from 'react-redux'
+import {withRouter} from 'react-router-dom'
 
+@withRouter
 @connect(
     state=>state.chatuser,
     {getUserList}
@@ -13,6 +15,10 @@ class Boss extends React.Component{
     componentDidMount(){
         this.props.getUserList('genius')
     }
+    handleClick(v){
+        console.log('press printcard')
+        this.props.history.push(`/chat/${v.user}`)
+    }
     
     render(){
 
@@ -22,8 +28,11 @@ class Boss extends React.Component{
                     <WhiteSpace></WhiteSpace>
                     {this.props.userlist.map(v=>(
                          v.avatar ? (
-                        <div key={v._id}>
-                            <Card key={v._id}> 
+                        <div key={v._id} >
+                            <Card 
+                                key={v._id}
+                                onClick={()=>this.handleClick(v)}
+                                > 
                                 <Card.Header 
                                 title={v.user}
                                 thumb={require(`../imgs/${v.avatar}.png`)}

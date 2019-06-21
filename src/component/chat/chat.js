@@ -1,9 +1,10 @@
 
 import React from 'react';
 import io from 'socket.io-client'
-import { List, InputItem, NavBar, Icon } from 'antd-mobile';
+import { List, InputItem, NavBar, Icon, Grid } from 'antd-mobile';
 import { connect } from 'react-redux'
 import { getMsgList, sendMsg, recvMsg } from '../../redux/chat.redux'
+import { getChatId} from '../../util'
 
 const socket = io('ws://localhost:9093');   // 如果不是跨域请求，则括号内为空
 
@@ -19,6 +20,7 @@ class Chat extends React.Component {
         this.state = {
             text: '',
             msg: [],
+            showEmoji: false,
         }
 
     }
@@ -27,11 +29,15 @@ class Chat extends React.Component {
             this.props.getMsgList()
             this.props.recvMsg()
         }
-        
         // socket.on('recvmsg', (data) => {
         //     console.log(data)
         //     this.setState({ msg: [...this.state.msg, data.text] })
         // })
+    }
+    fixCarousel(){
+        setTimeout(function(){
+			window.dispatchEvent(new Event('resize'))
+		},0)    // 用于修复<Grid />组件emoji显示bug
     }
     handleSubmit() {
         // socket.emit('sendmsg', { text: this.state.text })
@@ -49,7 +55,14 @@ class Chat extends React.Component {
         if(!users[userid]){
             return null
         }
-        console.log(this.props.chat)
+        const chatid = getChatId(userid, this.props.user._id)//拼接相互聊天的两个id
+        const chatmsgs = this.props.chat.chatmsg.filter(v=>v.chatid===chatid)
+        
+        // console.log(this.props.chat)
+        const emoji = '😀 😃 😄 😁 😆 😅 😂 😊 😇 🙂 🙃 😉 😌 😍 😘 😗 😙 😚 😋 😜 😝 😛 🤑 🤗 🤓 😎 😏 😒 😞 😔 😟 😕 🙁 😣 😖 😫 😩 😤 😠 😡 😶 😐 😑 😯 😦 😧 😮 😲 😵 😳 😱 😨 😰 😢 😥 😭 😓 😪 😴 🙄 🤔 😬 🤐 😷 🤒 🤕 😈 👿 👹 👺 💩 👻 💀 ☠️ 👽 👾 🤖 🎃 😺 😸 😹 😻 😼 😽 🙀 😿 😾 👐 🙌 👏 🙏 👍 👎 👊 ✊ 🤘 👌 👈 👉 👆 👇 ✋  🖐 🖖 👋  💪 🖕 ✍️  💅 🖖 💄 💋 👄 👅 👂 👃 👁 👀 '
+										.split(' ')
+										.filter(v=>v)
+										.map(v=>({text:v}))
         return (
             <div id='chat-page'>
                 <NavBar 
@@ -61,7 +74,7 @@ class Chat extends React.Component {
                 >
                     {users[userid].name}
                 </NavBar>
-                {this.props.chat.chatmsg.map(v => {
+                {chatmsgs.map(v => {
                     const avatar = require(`../imgs/${users[v.from].avatar}.png`)
                     return v.from===userid ? (
                         <List key={v._id}>
@@ -72,7 +85,7 @@ class Chat extends React.Component {
                     ) : (
                         <List key={v._id}>
                             <Item 
-                                extra={<img src={avatar}/>}
+                                extra={<img src={avatar} alt=''/>}
                                 className='chat-me'
                             >{v.content}</Item>
                         </List>
@@ -86,11 +99,36 @@ class Chat extends React.Component {
                             onChange={v => {
                                 this.setState({ text: v })
                             }}
-                            extra={<span onClick={() => this.handleSubmit()}>发送</span>}
+                            extra={
+                                <div>
+                                    <span
+                                        role="img"
+										style={{marginRight:15}}
+										onClick={()=>{
+											this.setState({
+												showEmoji:!this.state.showEmoji
+											})
+											this.fixCarousel()
+										}}
+									>😃</span>
+                                    <span onClick={() => this.handleSubmit()}>发送</span>
+                                </div>
+                            }
                         >
 
                         </InputItem>
                     </List>
+                    {this.state.showEmoji ? <Grid 
+                        data={emoji} 
+                        columnNum={9}
+                        carouselMaxRow={4}
+                        isCarousel={true}
+                        onClick={el=>{
+							this.setState({
+								text:this.state.text+el.text
+							})
+						}}
+                    /> : null}
                 </div>
             </div>
         )

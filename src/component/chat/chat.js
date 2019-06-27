@@ -3,14 +3,15 @@ import React from 'react';
 import io from 'socket.io-client'
 import { List, InputItem, NavBar, Icon, Grid } from 'antd-mobile';
 import { connect } from 'react-redux'
-import { getMsgList, sendMsg, recvMsg } from '../../redux/chat.redux'
+import { getMsgList, sendMsg, recvMsg, readMsg } from '../../redux/chat.redux'
 import { getChatId} from '../../util'
+
 
 const socket = io('ws://localhost:9093');   // 如果不是跨域请求，则括号内为空
 
 @connect(
     state => state,
-    { getMsgList, sendMsg, recvMsg }
+    { getMsgList, sendMsg, recvMsg, readMsg }
 )
 
 
@@ -33,6 +34,10 @@ class Chat extends React.Component {
         //     console.log(data)
         //     this.setState({ msg: [...this.state.msg, data.text] })
         // })
+    }
+    componentWillUnmount(){                             // 组件移出时标记unread
+        const to = this.props.match.params.user
+        this.props.readMsg(to)
     }
     fixCarousel(){
         setTimeout(function(){

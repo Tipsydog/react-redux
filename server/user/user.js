@@ -6,7 +6,7 @@ const model = require('../model');
 const User = model.getModel('user');
 const Chat = model.getModel('chat')
 const _filter = { 'pwd': 0, '__v': 0}
-// Chat.remove({}, function(e, d){}) // 清空Chat，使用时解开注释
+// Chat.remove({}, function(e, d){}) // 清空Chat，使用时解开注释  
 
 Router.get('/list', function(req, res){
     const type = req.query.type
@@ -27,6 +27,20 @@ Router.get('/getmsglist', function(req,res){
                 return res.json({code:0, msgs:doc, users:users})
             }
         })
+    })
+})
+Router.post('/readmsg', function(req,res){
+    const userid = req.cookies.userid
+    const {from} = req.body
+    Chat.update({from, to:userid}, 
+        {'$set':{read:true}},   // 修改read值为true
+        {'multi': true},    // 多行设置为true
+        function(err, doc){
+        console.log(doc)
+        if(!err){
+            return res.json({code:0, num: doc.nModified})
+        }
+        return res.json({code:1, msg:'修改失败'})
     })
 })
 Router.post('/update', function(req, res){
